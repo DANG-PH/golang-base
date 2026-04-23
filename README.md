@@ -620,33 +620,69 @@ pkg/
 - [Go 1.22+](https://golang.org/dl/)
 - [Docker](https://docs.docker.com/get-docker/) (tùy chọn)
 
-### Setup
+### Setup Linux/Mac
 
 ```bash
 # 1. Clone
 git clone https://github.com/DANG-PH/golang-base.git my-service
 cd my-service
 
-# 2. Đổi tên module — Linux/Mac
-find . -type f -name "*.go" | xargs sed -i 's|golang-base|my-service|g'
-sed -i 's|golang-base|my-service|g' go.mod
+# 2. Đổi import path trong code (.go)
+# (dùng full module path, không dùng "my-service")
+find . -type f -name "*.go" -exec sed -i.bak 's|github.com/DANG-PH/golang-base|github.com/DANG-PH/my-service|g' {} +
+find . -type f -name "*.bak" -delete
 
-# 2. Đổi tên module — Windows (PowerShell)
-Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object { (Get-Content $_.FullName -Raw) -replace 'github.com/DANG-PH/golang-base', 'my-service' | Set-Content $_.FullName -NoNewline -Encoding utf8 }; (Get-Content go.mod -Raw) -replace 'github.com/DANG-PH/golang-base', 'my-service' | Set-Content go.mod -NoNewline -Encoding utf8
+# 3. Đổi module chuẩn bằng Go toolchain (KHÔNG edit tay go.mod)
+go mod edit -module github.com/DANG-PH/my-service
+go mod tidy
 
-# 3. Reset git history
-rm -rf .git && git init # Linux 
-Remove-Item -Recurse -Force .git; git init # Window
+# 4. Reset git history
+rm -rf .git && git init
 
-git add . && git commit -m "chore: initial from golang-base"
+git add .
+git commit -m "chore: initial from golang-base"
 
-# 4. Cấu hình env
+# 5. Cấu hình env
 cp .env.example .env
 
-# 5. Chạy
+# 6. Chạy
 make run
 
-# 6. Test health
+# 7. Test
+curl http://localhost:8080/health
+# → {"status":"ok"}
+```
+
+### Setup Window (PowerShell)
+
+```bash
+# 1. Clone
+git clone https://github.com/DANG-PH/golang-base.git my-service
+cd my-service
+
+# 2. Replace import path trong code (.go)
+Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object {
+  (Get-Content $_.FullName -Raw) -replace 'github.com/DANG-PH/golang-base', 'github.com/DANG-PH/my-service' |
+    Set-Content $_.FullName -NoNewline -Encoding utf8NoBOM
+}
+
+# 3. Update module đúng chuẩn (tránh BOM + lỗi syntax)
+go mod edit -module github.com/DANG-PH/my-service
+go mod tidy
+
+# 4. Reset git history
+Remove-Item -Recurse -Force .git; git init
+
+git add .
+git commit -m "chore: initial from golang-base"
+
+# 5. Cấu hình env
+Copy-Item .env.example .env
+
+# 6. Chạy
+make run
+
+# 7. Test
 curl http://localhost:8080/health
 # → {"status":"ok"}
 ```
