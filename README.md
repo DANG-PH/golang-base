@@ -661,10 +661,7 @@ git clone https://github.com/DANG-PH/golang-base.git my-service
 cd my-service
 
 # 2. Replace import path trong code (.go)
-Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object {
-  (Get-Content $_.FullName -Raw) -replace 'github.com/DANG-PH/golang-base', 'github.com/DANG-PH/my-service' |
-    Set-Content $_.FullName -NoNewline -Encoding utf8NoBOM
-}
+Get-ChildItem -Recurse -Filter "*.go" | % { [System.IO.File]::WriteAllText($_.FullName, ([System.IO.File]::ReadAllText($_.FullName) -replace 'github.com/DANG-PH/golang-base','github.com/DANG-PH/my-service'), (New-Object System.Text.UTF8Encoding($false))) }
 
 # 3. Update module đúng chuẩn (tránh BOM + lỗi syntax)
 go mod edit -module github.com/DANG-PH/my-service
