@@ -11,7 +11,7 @@
     <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"/></a>
     <a href="https://github.com/DANG-PH/golang-base/stargazers"><img src="https://img.shields.io/github/stars/DANG-PH/golang-base?style=flat&color=yellow" alt="Stars"/></a>
     <a href="CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome"/></a>
-    <a href="https://goreportcard.com/report/github.com/DANG-PH/golang-base"><img src="https://goreportcard.com/badge/github.com/DANG-PH/golang-base" alt="Go Report Card"/></a>
+    <a href="https://goreportcard.com/report/github.com/DANG-PH/golang-base"><img src="https://goreportcard.com/badge/github.com/DANG-PH/golang-base?v=2" alt="Go Report Card"/></a>
   </p>
 
   <p>
