@@ -1,16 +1,16 @@
 # ══════════════════════════════════════════════════════
-# golang-base — Makefile
+# game-service-go — Makefile
 # Dùng: make <command>
 # ══════════════════════════════════════════════════════
 
-.PHONY: run build test test/cover lint fmt vet tidy clean docker/build docker/run help
+.PHONY: run dev build test test/cover lint fmt vet tidy clean docker/build docker/run help
 
-# Hiện danh sách tất cả commands
 help:
 	@echo ""
 	@echo "  Commands:"
 	@echo ""
-	@echo "  make run          Chạy server (go run)"
+	@echo "  make dev          Chạy server với hot-reload (Air) ← dùng hàng ngày"
+	@echo "  make run          Chạy server (go run, fallback)"
 	@echo "  make build        Compile binary → bin/api"
 	@echo "  make test         Chạy tests với race detector"
 	@echo "  make test/cover   Chạy tests + xuất coverage.html"
@@ -24,66 +24,49 @@ help:
 	@echo ""
 
 # ── Development ───────────────────────────────────────
+dev:
+	air
 
-# Chạy trực tiếp bằng go run — dùng trong dev
+# Fallback nếu không dùng Air
 run:
 	go run cmd/api/main.go
 
 # Compile ra binary tĩnh vào bin/api
-# -ldflags="-s -w": strip debug info, giảm size binary
 build:
 	go build -ldflags="-s -w" -o bin/api cmd/api/main.go
 
 # ── Testing ───────────────────────────────────────────
 
-# Chạy tất cả tests với race detector
-# -race: phát hiện data race giữa các goroutine
-# -cover: hiển thị coverage % ra terminal
 test:
 	go test ./... -race -cover
 
-# Chạy tests + xuất coverage report dạng HTML
-# Mở coverage.html để xem từng dòng được test chưa
 test/cover:
 	go test ./... -race -coverprofile=coverage.out
 	go tool cover -html=coverage.out -o coverage.html
 
 # ── Code Quality ──────────────────────────────────────
 
-# Chạy golangci-lint với config từ .golangci.yml
-# Cài đặt: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 lint:
 	golangci-lint run ./...
 
-# Format toàn bộ code theo chuẩn Go
-# Nên chạy trước khi commit
 fmt:
 	go fmt ./...
 
-# Static analysis cơ bản — built-in Go tool
-# Phát hiện: format string sai, unreachable code, shadowed variables...
 vet:
 	go vet ./...
 
-# Dọn dẹp go.mod và go.sum
-# Xóa dependencies không dùng, thêm dependencies còn thiếu
 tidy:
 	go mod tidy
 
 # ── Cleanup ───────────────────────────────────────────
 
-# Xóa toàn bộ build artifacts và file tạm
 clean:
 	rm -rf bin/ coverage.out coverage.html tmp/
 
 # ── Docker ────────────────────────────────────────────
 
-# Build Docker image với tag golang-base
-# Dùng Dockerfile multi-stage — image cuối ~15MB
 docker/build:
-	docker build -t golang-base .
+	docker build -t game-service-go .
 
-# Chạy container, load env từ file .env
-# Map port 8080 host → 8080 container
 docker/run:
-	docker run --env-file .env -p 8080:8080 golang-base
+	docker run --env-file .env -p 8080:8080 game-service-go

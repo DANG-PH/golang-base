@@ -13,6 +13,8 @@ tmp/
 # Development tools
 .air.toml
 .golangci.yml
+coverage.out
+coverage.html
 
 # Test & Coverage
 coverage.out
