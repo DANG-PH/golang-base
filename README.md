@@ -635,7 +635,9 @@ sed -i 's|golang-base|my-service|g' go.mod
 Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object { (Get-Content $_.FullName -Raw) -replace 'github.com/DANG-PH/golang-base', 'my-service' | Set-Content $_.FullName -NoNewline -Encoding utf8 }; (Get-Content go.mod -Raw) -replace 'github.com/DANG-PH/golang-base', 'my-service' | Set-Content go.mod -NoNewline -Encoding utf8
 
 # 3. Reset git history
-rm -rf .git && git init
+rm -rf .git && git init # Linux 
+Remove-Item -Recurse -Force .git; git init # Window
+
 git add . && git commit -m "chore: initial from golang-base"
 
 # 4. Cấu hình env
