@@ -632,10 +632,7 @@ find . -type f -name "*.go" | xargs sed -i 's|golang-base|my-service|g'
 sed -i 's|golang-base|my-service|g' go.mod
 
 # 2. Đổi tên module — Windows (PowerShell)
-Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object {
-  (Get-Content $_.FullName) -replace 'golang-base', 'my-service' | Set-Content $_.FullName
-}
-(Get-Content go.mod) -replace 'golang-base', 'my-service' | Set-Content go.mod
+Get-ChildItem -Recurse -Filter "*.go" | ForEach-Object { (Get-Content $_.FullName -Raw) -replace 'github.com/DANG-PH/golang-base', 'my-service' | Set-Content $_.FullName -NoNewline -Encoding utf8 }; (Get-Content go.mod -Raw) -replace 'github.com/DANG-PH/golang-base', 'my-service' | Set-Content go.mod -NoNewline -Encoding utf8
 
 # 3. Reset git history
 rm -rf .git && git init
