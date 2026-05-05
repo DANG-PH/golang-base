@@ -1,39 +1,41 @@
 # Contributing to golang-base
 
-Cảm ơn bạn đã quan tâm đến golang-base! Repo này là **core skeleton dùng chung** — mọi contribution đều được cân nhắc kỹ để giữ tính tối giản và generic.
+Thank you for your interest in golang-base! This repo is a **shared core skeleton** — every contribution is carefully considered to maintain simplicity and generality.
 
 ---
 
-## Nguyên tắc cốt lõi
+## Core principles
 
-Trước khi mở PR, hãy tự hỏi:
+Before opening a PR, ask yourself:
 
-> *"Thứ này có phải service nào cũng cần không?"*
+> *"Does every service need this?"*
 
-Nếu câu trả lời là **không chắc** — thì đừng thêm vào đây.
+If the answer is **not sure** — don't add it here.
 
-**Được chấp nhận:**
-- Cải thiện structure, naming convention, hoặc tài liệu
-- Fix bug trong phần đã có sẵn (config loader, middleware, Dockerfile...)
-- Cải thiện CI pipeline hoặc Makefile
-- Thêm vào `pkg/` những utility thực sự generic (không phụ thuộc business logic)
+### ✅ Accepted
 
-**Không được chấp nhận:**
-- Bất kỳ web framework nào (Gin, Echo, Fiber...)
-- ORM hoặc database driver cụ thể (GORM, sqlx, pgx...)
-- Business logic dưới mọi hình thức
-- Authentication/authorization implementation
-- Thêm dependency không cần thiết vào `go.mod`
+- Improvements to structure, naming conventions, or documentation
+- Bug fixes in existing parts (config loader, middleware, Dockerfile...)
+- CI pipeline or Makefile improvements
+- Truly generic utilities in `pkg/` (no business logic dependency)
+
+### ❌ Not accepted
+
+- Any web framework (Gin, Echo, Fiber...)
+- Specific ORM or database drivers (GORM, sqlx, pgx...)
+- Business logic in any form
+- Authentication/authorization implementations
+- Unnecessary dependencies added to `go.mod`
 
 ---
 
-## Quy trình
+## Process
 
-### 1. Mở Issue trước
+### 1. Open an issue first
 
-Với thay đổi lớn hơn fix typo, hãy mở issue trước để thảo luận. Tránh tình trạng viết cả đống code rồi PR bị reject vì không phù hợp với hướng đi của repo.
+For changes larger than a typo fix, open an issue first to discuss. Avoid writing a lot of code only for the PR to be rejected because it doesn't fit the repo's direction.
 
-### 2. Fork và tạo branch
+### 2. Fork and create a branch
 
 ```bash
 git clone https://github.com/<your-username>/golang-base.git
@@ -41,7 +43,8 @@ cd golang-base
 git checkout -b <type>/<short-description>
 ```
 
-Tên branch theo pattern:
+Branch naming pattern:
+
 ```
 feat/add-grpc-interceptor-example
 fix/recovery-middleware-nil-panic
@@ -49,24 +52,24 @@ docs/clarify-external-client-rules
 chore/update-golangci-config
 ```
 
-### 3. Viết code
+### 3. Write code
 
-Tuân thủ đúng [quy tắc mở rộng trong README](README.md#-quy-tắc-mở-rộng). Nếu thêm file mới, đặt đúng vị trí theo bảng tổng hợp.
+Follow the extension rules in the README. Place new files in the correct location per the structure table.
 
-Chạy các check sau trước khi commit:
+Run these checks before committing:
 
 ```bash
 make fmt      # format code
 make vet      # static analysis
 make lint     # golangci-lint
-make test     # chạy tests
+make test     # run tests
 ```
 
-Tất cả phải pass, không có warning mới được commit.
+All must pass with no warnings before committing.
 
 ### 4. Commit
 
-Dùng [Conventional Commits](https://www.conventionalcommits.org/):
+Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
 feat: add recovery interceptor for gRPC server
@@ -76,47 +79,48 @@ chore: bump golangci-lint to v1.57
 refactor: simplify config loader default handling
 ```
 
-Mỗi commit làm **1 việc**. Không commit "fix stuff" hay "update".
+Each commit does **one thing**. No "fix stuff" or "update" commits.
 
-### 5. Mở Pull Request
+### 5. Open a Pull Request
 
-- Title theo format Conventional Commits
-- Mô tả ngắn: tại sao thay đổi này cần thiết, không phải nó làm gì (code đã nói điều đó)
-- Nếu có issue liên quan: `Closes #<number>`
-- Không cần checklist dài dòng — CI sẽ tự kiểm tra
+- Title follows Conventional Commits format
+- Short description: **why** the change is needed, not what it does (code says that)
+- If related to an issue: `Closes #<number>`
+- No long checklists — CI will check automatically
 
 ---
 
 ## Code style
 
-Repo này không dùng framework nên không có convention đặc biệt ngoài Go standard:
+This repo uses no framework, so there are no special conventions beyond Go standard:
 
-- `gofmt` — bắt buộc, chạy qua `make fmt`
-- `golangci-lint` với config trong `.golangci.yml` — bắt buộc
-- Comment public API bằng tiếng Anh, theo Go doc convention (`// FunctionName does...`)
-- Error message viết thường, không dấu chấm cuối (`"something went wrong"` không phải `"Something went wrong."`)
-- Không dùng `panic` trong library code — chỉ dùng trong `main.go` khi startup fail
+- `gofmt` — required, run via `make fmt`
+- `golangci-lint` with config in `.golangci.yml` — required
+- Comment public API in English, following Go doc convention (`// FunctionName does...`)
+- Error messages in lowercase, no trailing period (`"something went wrong"` not `"Something went wrong."`)
+- No `panic` in library code — only in `main.go` when startup fails
 
 ---
 
-## Thêm vào `pkg/`
+## Adding to `pkg/`
 
-Đây là nơi hay bị lạm dụng nhất. Package mới vào `pkg/` phải đáp ứng **cả hai**:
+This is the most commonly misused area. A new package in `pkg/` must satisfy **both**:
 
-1. Không chứa bất kỳ business logic nào
-2. Có thể copy sang service khác và dùng ngay mà không cần sửa
+1. Contains no business logic whatsoever
+2. Can be copied to another service and used immediately without modification
 
-Nếu chỉ đáp ứng 1 trong 2 — không thuộc về đây.
+If only one condition is met — it doesn't belong here.
 
-Mỗi package là 1 folder, file chính trùng tên package:
+Each package is one folder, with the main file matching the package name:
+
 ```
 pkg/paginate/paginate.go    ✅
-pkg/utils/string.go         ❌  — tên generic không được phép
+pkg/utils/string.go         ❌  — generic name not allowed
 pkg/auth/jwt.go             ❌  — business-specific
 ```
 
 ---
 
-## Câu hỏi?
+## Questions?
 
-Mở [Discussion](https://github.com/DANG-PH/golang-base/discussions) hoặc comment thẳng vào issue liên quan.
+Open a [Discussion](https://github.com/DANG-PH/golang-base/discussions) or comment directly on the related issue.

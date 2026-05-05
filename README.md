@@ -1,10 +1,10 @@
 <div align="center">
 
-  <img src="https://raw.githubusercontent.com/DANG-PH/MICROSERVICE_GAME_SERVICE_GO/master/golang.png" alt="Go Gopher" width="100"/>
+  <img src="https://raw.githubusercontent.com/DANG-PH/DANG-PH/main/go-trans.png" alt="Go Gopher" width="100"/>
 
   <h1>Golang Base</h1>
 
-  <p>Go project core tối giản, production-ready — skeleton mà mọi service đều bắt đầu từ đây.</p>
+  <p>A minimal, production-ready Go project core — the skeleton every service starts from.</p>
 
   <p>
     <a href="https://golang.org/"><img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=flat&logo=go" alt="Go Version"/></a>
@@ -15,119 +15,119 @@
   </p>
 
   <p>
-    <a href="#-triết-lý">Triết lý</a> •
-    <a href="#-cấu-trúc">Cấu trúc</a> •
-    <a href="#-có-sẵn-trong-repo">Có sẵn</a> •
-    <a href="#-quy-tắc-mở-rộng">Quy tắc mở rộng</a> •
-    <a href="#-bắt-đầu">Bắt đầu</a> •
+    <a href="#-philosophy">Philosophy</a> •
+    <a href="#-structure">Structure</a> •
+    <a href="#-whats-included">What's Included</a> •
+    <a href="#-extension-rules">Extension Rules</a> •
+    <a href="#-getting-started">Getting Started</a> •
     <a href="#%EF%B8%8F-makefile-commands">Makefile</a> •
-    <a href="#-đóng-góp">Đóng góp</a>
+    <a href="#-contributing">Contributing</a>
   </p>
 
 </div>
 
 ---
 
-## 💡 Triết lý
+## 💡 Philosophy
 
-Đây là **core tối thiểu** dùng chung cho mọi Go service — không hơn, không kém.
+This is the **minimum shared core** for every Go service — nothing more, nothing less.
 
-Không bao gồm web framework, ORM, hay bất kỳ business logic nào. Những thứ đó được thêm vào theo từng service dựa trên yêu cầu thực tế. Mục tiêu là một điểm khởi đầu sạch, có định hướng rõ ràng về structure mà không áp đặt lựa chọn tech stack.
+No web framework. No ORM. No business logic. Those get added per service based on actual requirements. The only goal here is a clean starting point with a clear structural direction, without dictating tech stack choices.
 
-> Clone về. Thêm dependencies. Ship service.
+> Clone it. Add dependencies. Ship the service.
 
 ---
 
-## 📁 Cấu trúc
+## 📁 Structure
 
 ```
 golang-base/
 │
 ├── cmd/
 │   └── api/
-│       └── main.go                    # Entry point — wire mọi thứ lại với nhau
+│       └── main.go                    # Entry point — where everything gets wired together
 │
 ├── internal/
 │   ├── config/
-│   │   └── config.go                  # Load và validate env config
+│   │   └── config.go                  # Load and validate env config
 │   │
 │   ├── app/
-│   │   └── app.go                     # Bootstrap — khởi tạo và chạy app
+│   │   └── app.go                     # Bootstrap — initialize and run the app
 │   │
-│   ├── transport/                     # Inbound — thế giới gọi vào chúng ta
+│   ├── transport/                     # Inbound — the world calling into us
 │   │   ├── http/
-│   │   │   ├── server.go              # HTTP server lifecycle, timeout, graceful shutdown
-│   │   │   ├── router.go              # Đăng ký routes
+│   │   │   ├── server.go              # HTTP server lifecycle, timeouts, graceful shutdown
+│   │   │   ├── router.go              # Route registration
 │   │   │   └── middleware/
-│   │   │       ├── logger.go          # Log method, path, status, latency mỗi request
-│   │   │       └── recovery.go        # Bắt panic, trả 500 thay vì crash server
+│   │   │       ├── logger.go          # Log method, path, status, latency per request
+│   │   │       └── recovery.go        # Catch panics, return 500 instead of crashing
 │   │   │
-│   │   ├── grpc/                      # gRPC server — nhận RPC từ service khác gọi vào
-│   │   │   ├── server.go              # Setup gRPC server, TLS, interceptor chain
+│   │   ├── grpc/                      # gRPC server — receive RPCs from other services
+│   │   │   ├── server.go              # gRPC server setup, TLS, interceptor chain
 │   │   │   └── interceptor/
 │   │   │       └── logger.go          # Log interceptor
 │   │   │
-│   │   └── consumer/                  # Nhận message từ broker (RabbitMQ, Kafka, NATS)
-│   │       └── handler.go             # Deserialize message, delegate tới service
+│   │   └── consumer/                  # Receive messages from a broker (RabbitMQ, Kafka, NATS)
+│   │       └── handler.go             # Deserialize message, delegate to service
 │   │
-│   ├── external/                      # Outbound — chúng ta gọi ra ngoài
-│   │   ├── client/                    # Sync calls — gọi và chờ response
+│   ├── external/                      # Outbound — us calling out
+│   │   ├── client/                    # Sync calls — call and wait for response
 │   │   │   └── example.go             # gRPC/HTTP client → external service
-│   │   └── messaging/                 # Async calls — publish và không chờ
-│   │       ├── publisher.go           # Gửi message lên queue/topic
-│   │       └── messages.go            # Định nghĩa message types
+│   │   └── messaging/                 # Async calls — publish and forget
+│   │       ├── publisher.go           # Publish messages to a queue/topic
+│   │       └── messages.go            # Message type definitions
 │   │
-│   ├── shared/                        # Thêm khi có thứ dùng chung nhiều domain
+│   ├── shared/                        # Add only when multiple domains share something
 │   │   ├── enums.go                   # OrderStatus, PaymentStatus, Role...
 │   │   ├── types.go                   # UserID, Money, Timestamp...
 │   │   └── errors.go                  # ErrNotFound, ErrUnauthorized...
 │   │
-│   └── user/                          # Domain ví dụ — thay bằng domain thật của bạn
+│   └── user/                          # Example domain — replace with your real domain
 │       ├── handler.go                 # HTTP layer: bind, validate, delegate
-│       ├── service.go                 # Interface — những gì domain này expose ra ngoài
+│       ├── service.go                 # Interface — what this domain exposes
 │       ├── service_impl.go            # Implementation — business logic
-│       ├── repository.go              # Interface — contract truy cập dữ liệu
+│       ├── repository.go              # Interface — data access contract
 │       ├── model.go                   # Domain structs & DTOs
 │       └── postgres/
-│           └── repository.go          # Implement repository với Postgres
+│           └── repository.go          # Repository implementation for Postgres
 │
-├── pkg/                               # Shared packages có thể export (rỗng mặc định)
+├── pkg/                               # Exportable shared packages (empty by default)
 │
 ├── .github/
 │   └── workflows/
 │       └── ci.yml                     # CI pipeline — lint, test, build
 │
-├── .air.toml                          # Cấu hình Air hot-reload
+├── .air.toml                          # Air hot-reload config
 ├── Dockerfile                         # Multi-stage production build
 ├── .dockerignore
-├── .env.example                       # Template env vars — commit lên Git, không có secret
+├── .env.example                       # Env var template — commit to Git, no secrets
 ├── .gitignore
-├── .golangci.yml                      # Cấu hình linter
+├── .golangci.yml                      # Linter config
 ├── go.mod
 ├── Makefile
 └── README.md
 ```
 
-**Tại sao structure này?**
+**Why this structure?**
 
-- **`cmd/api/`** — theo [official Go project layout](https://go.dev/doc/modules/layout). `main.go` chỉ làm 1 việc: parse config, build app, run.
-- **`internal/config/`** — mọi service đều cần config. Tập trung ở đây tránh `os.Getenv` rải rác.
-- **`internal/app/`** — bootstrap pattern thấy ở mọi production repo. Giữ `main.go` gọn và app dễ test.
-- **`internal/transport/`** — tất cả protocol **nhận vào** ở một chỗ. HTTP server, gRPC server, MQ consumer đều là cách nhận input — thuộc về nhau.
-- **`internal/external/`** — tất cả thứ **gọi ra ngoài** ở một chỗ. Đối xứng hoàn toàn với `transport/`. `client/` cho sync calls, `messaging/` cho async publish.
-- **`internal/shared/`** — chỉ tạo khi thực sự có 2+ domain cần dùng chung. Không tạo sớm.
-- **`internal/<domain>/`** — layout theo domain. Mỗi domain sở hữu toàn bộ vertical slice của nó.
-- **`pkg/`** — code dùng lại được giữa nhiều service. Rỗng mặc định.
+- **`cmd/api/`** — follows the [official Go project layout](https://go.dev/doc/modules/layout). `main.go` does exactly one thing: parse config, build app, run.
+- **`internal/config/`** — every service needs config. Centralizing it here prevents `os.Getenv` calls from scattering everywhere.
+- **`internal/app/`** — a bootstrap pattern found in virtually every production repo. Keeps `main.go` lean and the app easy to test.
+- **`internal/transport/`** — all **inbound** protocols in one place. HTTP server, gRPC server, MQ consumer are all ways of receiving input — they belong together.
+- **`internal/external/`** — a perfect counterpart to `transport/`. `client/` for sync calls, `messaging/` for async publish.
+- **`internal/shared/`** — only create when two or more domains genuinely need the same thing. Don't create it early.
+- **`internal/<domain>/`** — domain-driven layout. Each domain owns its full vertical slice.
+- **`pkg/`** — reusable code shared across multiple services. Empty by default.
 
 ---
 
-## ✅ Có sẵn trong repo
+## ✅ What's Included
 
-Những file dưới đây đã được implement sẵn — clone về là dùng được ngay.
+The following files are fully implemented — clone and use immediately.
 
 ### `internal/config/config.go`
 
-Load config từ environment variables, có giá trị default cho từng field. Không dùng thư viện ngoài — chỉ `os.Getenv` thuần. Thêm field mới vào struct `Config` và `Load()` là xong.
+Loads config from environment variables with sensible defaults for every field. No external dependencies — just plain `os.Getenv`. To add a new field, declare it in the `Config` struct and `Load()` function.
 
 ```
 APP_ENV   → cfg.App.Env   (default: development)
@@ -136,42 +136,42 @@ APP_PORT  → cfg.App.Port  (default: 8080)
 
 ### `internal/app/app.go`
 
-Bootstrap toàn bộ app. Khởi tạo HTTP server với đúng timeout, đăng ký routes, xử lý graceful shutdown khi nhận `SIGINT`/`SIGTERM`. Server chờ request đang chạy hoàn thành (tối đa 10 giây) trước khi tắt.
+Bootstraps the entire app. Initializes the HTTP server with correct timeouts, registers routes, and handles graceful shutdown on `SIGINT`/`SIGTERM`. The server waits for in-flight requests to complete (up to 10 seconds) before shutting down.
 
-Endpoint `/health` trả `{"status":"ok"}` đã có sẵn — dùng ngay cho liveness check.
+The `/health` endpoint returning `{"status":"ok"}` is included — ready for liveness checks out of the box.
 
 ### `internal/transport/http/server.go`
 
-Tạo `*http.Server` với timeout production-ready:
+Creates an `*http.Server` with production-appropriate timeouts:
 
-| Timeout | Giá trị | Mục đích |
+| Timeout | Value | Purpose |
 |---|---|---|
-| `ReadTimeout` | 10s | Chặn slow client gửi request |
-| `WriteTimeout` | 10s | Giới hạn thời gian ghi response |
-| `IdleTimeout` | 60s | Đóng idle connection sau 60s |
+| `ReadTimeout` | 10s | Blocks slow clients from dragging out request reads |
+| `WriteTimeout` | 10s | Caps the time allowed to write a response |
+| `IdleTimeout` | 60s | Closes idle keep-alive connections after 60s |
 
 ### `internal/transport/http/middleware/logger.go`
 
-Log mỗi request: `POST /v1/users 201 23ms`. Wrap `http.ResponseWriter` để capture status code sau khi handler chạy xong.
+Logs each request as: `POST /v1/users 201 23ms`. Wraps `http.ResponseWriter` to capture the status code after the handler returns.
 
 ### `internal/transport/http/middleware/recovery.go`
 
-Bắt `panic` trong bất kỳ handler nào, log stack trace đầy đủ, trả `500` thay vì crash server. **Bắt buộc phải có ở production** — thiếu nó thì 1 panic kill cả process.
+Catches any `panic` inside a handler, logs the full stack trace, and returns `500` instead of crashing the server. **This is non-negotiable in production** — without it, a single panic kills the entire process.
 
 ### `Dockerfile`
 
-Multi-stage build: stage 1 compile binary, stage 2 chạy trên `alpine:3.19` (~15MB image). Binary build với `-ldflags="-s -w"` để strip debug info, giảm size.
+Multi-stage build: stage 1 compiles the binary, stage 2 runs on `alpine:3.19` (~15MB image). The binary is built with `-ldflags="-s -w"` to strip debug info and reduce size.
 
 ---
 
 ## 🏛️ Domain Architecture
 
-Mỗi domain theo pattern layered với interface/implementation tách biệt:
+Each domain follows a layered pattern with interfaces and implementations kept separate:
 
 ```
-Request đến
+Incoming request
   └── handler.go          ← HTTP only: bind JSON, validate, delegate
-        └── service.go        ← Interface: contract của domain
+        └── service.go        ← Interface: domain contract
         └── service_impl.go   ← Implementation: business rules
               └── repository.go       ← Interface: data access contract
               └── postgres/
@@ -179,72 +179,72 @@ Request đến
                           └── model.go ← Structs, DTOs
 ```
 
-**Quy tắc bất biến:**
-- Handler không bao giờ truy cập database trực tiếp.
-- Service không biết về HTTP — không có `http.Request`, không có status code.
-- Repository không chứa business rule.
-- `service.go` định nghĩa interface; `service_impl.go` implement — mock khi test cực dễ.
-- `repository.go` định nghĩa interface; `postgres/repository.go` implement — đổi DB chỉ cần thêm subfolder mới.
-- Model chia sẻ tự do trong domain, không chia sẻ giữa các domain.
+**Rules that don't bend:**
+- Handlers never access the database directly.
+- Services know nothing about HTTP — no `http.Request`, no status codes.
+- Repositories contain no business rules.
+- `service.go` defines the interface; `service_impl.go` implements it — mocking for tests is trivial.
+- `repository.go` defines the interface; `postgres/repository.go` implements it — swapping databases means adding a new subfolder, nothing else.
+- Models are shared freely within a domain, never across domains.
 
 ---
 
-## 🔌 Quy tắc mở rộng
+## 🔌 Extension Rules
 
-> Đọc phần này trước khi thêm bất kỳ file hay folder mới nào vào project.
+> Read this before adding any new file or folder.
 
 ---
 
-### 1. Thêm domain mới
+### 1. Adding a New Domain
 
-Mỗi tính năng nghiệp vụ = 1 folder trong `internal/`.
+Each business feature = one folder under `internal/`.
 
 ```
 internal/
-└── order/                  # tên domain, số ít, chữ thường
-    ├── handler.go           # nhận HTTP request, bind, validate, gọi service
+└── order/                  # domain name, singular, lowercase
+    ├── handler.go           # receive HTTP request, bind, validate, call service
     ├── service.go           # interface OrderService { ... }
-    ├── service_impl.go      # struct orderService implement interface trên
+    ├── service_impl.go      # struct orderService implementing the interface above
     ├── repository.go        # interface OrderRepository { ... }
     ├── model.go             # Order struct, CreateOrderRequest, OrderResponse
     └── postgres/
-        └── repository.go   # implement OrderRepository với GORM/sqlx
+        └── repository.go   # implement OrderRepository with GORM/sqlx
 ```
 
-**Quy tắc đặt tên file:**
+**File naming rules:**
 
-| File | Nội dung | Quy tắc |
+| File | Contents | Notes |
 |---|---|---|
-| `handler.go` | HTTP handlers | 1 file nếu ít route, tách `handler_admin.go` nếu nhiều |
-| `service.go` | Interface | Chỉ chứa interface, không chứa logic |
-| `service_impl.go` | Implementation | Struct + methods implement interface |
-| `repository.go` | Interface | Chỉ chứa interface |
-| `model.go` | Structs | Domain entity + request/response DTOs cùng 1 file |
-| `postgres/repository.go` | DB impl | Nếu dùng MySQL thì tạo `mysql/repository.go` |
+| `handler.go` | HTTP handlers | One file for few routes; split into `handler_admin.go` if there are many |
+| `service.go` | Interface | Interface only, no logic |
+| `service_impl.go` | Implementation | Struct + methods implementing the interface |
+| `repository.go` | Interface | Interface only |
+| `model.go` | Structs | Domain entity + request/response DTOs in one file |
+| `postgres/repository.go` | DB impl | For MySQL, create `mysql/repository.go` |
 
-**Không được:**
+**Do not:**
 ```
-❌ internal/order/orderHandler.go   — không dùng camelCase cho tên file
-❌ internal/order/order_handler.go  — không prefix tên domain vào file
-❌ internal/order/handlers/         — không tạo subfolder cho từng layer
+❌ internal/order/orderHandler.go   — no camelCase in file names
+❌ internal/order/order_handler.go  — don't prefix the domain name into file names
+❌ internal/order/handlers/         — don't create subfolders per layer
 ```
 
 ---
 
-### 2. Thêm transport mới
+### 2. Adding a New Transport
 
-Transport = cách nhận input từ bên ngoài. Tất cả nằm trong `internal/transport/`.
+A transport is a way to receive input from the outside world. Everything goes under `internal/transport/`.
 
-**Thêm WebSocket:**
+**Adding WebSocket:**
 ```
 internal/transport/
 └── ws/
-    ├── server.go       # upgrade HTTP → WS, quản lý hub
-    ├── hub.go          # quản lý connections, broadcast
+    ├── server.go       # upgrade HTTP → WS, manage hub
+    ├── hub.go          # manage connections, broadcast
     └── client.go       # 1 goroutine/client: readPump + writePump
 ```
 
-**Thêm gRPC server:**
+**Adding gRPC server:**
 ```
 internal/transport/
 └── grpc/
@@ -254,28 +254,28 @@ internal/transport/
         └── logger.go
 ```
 
-**Thêm consumer (MQ):**
+**Adding a consumer (MQ):**
 ```
 internal/transport/
 └── consumer/
-    ├── handler.go          # entry point — subscribe và dispatch
-    ├── order_handler.go    # xử lý order events
-    └── user_handler.go     # xử lý user events
+    ├── handler.go          # entry point — subscribe and dispatch
+    ├── order_handler.go    # handle order events
+    └── user_handler.go     # handle user events
 ```
 
-**Không được:**
+**Do not:**
 ```
-❌ internal/websocket/      — phải nằm trong transport/
-❌ internal/transport/websocketServer.go — phải là folder, không phải file đơn lẻ
+❌ internal/websocket/      — must live under transport/
+❌ internal/transport/websocketServer.go — must be a folder, not a single file
 ```
 
 ---
 
-### 3. Thêm outbound call
+### 3. Adding Outbound Calls
 
-Mọi thứ gọi ra ngoài nằm trong `internal/external/`.
+Everything that calls out goes under `internal/external/`.
 
-**Gọi service khác (sync):**
+**Calling another service (sync):**
 ```
 internal/external/
 └── client/
@@ -283,10 +283,10 @@ internal/external/
     └── inventory.go    # gRPC/HTTP client → inventory service
 ```
 
-Mỗi file client:
-- Định nghĩa interface ở đầu file (để `service_impl.go` inject)
-- Implement gRPC stub bên dưới
-- Không chứa business logic, chỉ wrap network call
+Each client file should:
+- Declare an interface at the top (for injection into `service_impl.go`)
+- Implement the gRPC stub below
+- Contain no business logic — just wrap the network call
 
 ```go
 // internal/external/client/payment.go
@@ -301,12 +301,12 @@ func NewPaymentClient(addr string) (PaymentClient, error) { ... }
 func (c *grpcPaymentClient) Charge(...) { ... }
 ```
 
-**Publish message (async):**
+**Publishing messages (async):**
 ```
 internal/external/
 └── messaging/
-    ├── publisher.go    # implement publish lên broker
-    └── messages.go     # định nghĩa tất cả message types
+    ├── publisher.go    # implement publishing to a broker
+    └── messages.go     # define all message types
 ```
 
 ```go
@@ -318,68 +318,68 @@ type OrderCreatedEvent struct {
 }
 ```
 
-**Không được:**
+**Do not:**
 ```
-❌ internal/payment/client.go   — client phải nằm trong external/client/
-❌ internal/rabbitmq/           — infra chi tiết không expose ra tên folder
+❌ internal/payment/client.go   — clients must live under external/client/
+❌ internal/rabbitmq/           — infrastructure details don't belong in folder names
 ```
 
 ---
 
-### 4. Thêm middleware HTTP
+### 4. Adding HTTP Middleware
 
-Tất cả middleware nằm trong `internal/transport/http/middleware/`.
+All middleware lives under `internal/transport/http/middleware/`.
 
 ```
 middleware/
-├── logger.go       # đã có sẵn
-├── recovery.go     # đã có sẵn
-├── auth.go         # thêm khi cần JWT verify
-├── ratelimit.go    # thêm khi cần rate limiting
-├── cors.go         # thêm khi cần CORS
-└── idempotency.go  # thêm khi cần idempotency key check
+├── logger.go       # included
+├── recovery.go     # included
+├── auth.go         # add when you need JWT verification
+├── ratelimit.go    # add when you need rate limiting
+├── cors.go         # add when you need CORS
+└── idempotency.go  # add when you need idempotency key checks
 ```
 
-Mỗi middleware là 1 file riêng. Tên file = đúng tên chức năng. Đăng ký thứ tự trong `router.go`:
+Each middleware gets its own file, named exactly after its function. Register the order in `router.go`:
 
 ```go
-// router.go — thứ tự middleware quan trọng
-handler = middleware.Recovery(handler)   // ngoài cùng — bắt mọi panic
-handler = middleware.Logger(handler)     // sau recovery
-handler = middleware.CORS(handler)       // trước auth
-handler = middleware.Auth(handler)       // trong cùng — chạy cuối trước handler
+// router.go — middleware order matters
+handler = middleware.Recovery(handler)   // outermost — catches all panics
+handler = middleware.Logger(handler)     // after recovery
+handler = middleware.CORS(handler)       // before auth
+handler = middleware.Auth(handler)       // innermost — runs just before the handler
 ```
 
-**Không được:**
+**Do not:**
 ```
-❌ internal/middleware/         — phải nằm trong transport/http/middleware/
-❌ middleware/authMiddleware.go  — không suffix "Middleware" vào tên file
+❌ internal/middleware/         — must live under transport/http/middleware/
+❌ middleware/authMiddleware.go  — don't suffix file names with "Middleware"
 ```
 
 ---
 
-### 5. Thêm interceptor gRPC
+### 5. Adding gRPC Interceptors
 
-Tương tự middleware nhưng dùng tên `interceptor` — đúng với gRPC spec.
+Same idea as middleware, but named `interceptor` — aligned with gRPC conventions.
 
 ```
 internal/transport/grpc/interceptor/
-├── logger.go       # đã có sẵn
+├── logger.go       # included
 ├── auth.go         # metadata token check
-└── recovery.go     # bắt panic trong RPC handler
+└── recovery.go     # catch panics inside RPC handlers
 ```
 
 ---
 
-### 6. Thêm shared types
+### 6. Adding Shared Types
 
-Chỉ tạo `internal/shared/` khi **2+ domain** cần dùng cùng 1 thứ.
+Only create `internal/shared/` when **two or more domains** need the same thing.
 
 ```
 internal/shared/
-├── enums.go        # const + type cho status, role, loại...
+├── enums.go        # const + type for statuses, roles, kinds...
 ├── types.go        # custom types: UserID, Money, Timestamp
-└── errors.go       # sentinel errors dùng chung
+└── errors.go       # shared sentinel errors
 ```
 
 ```go
@@ -391,25 +391,25 @@ var (
 )
 ```
 
-**Không được:**
+**Do not:**
 ```
-❌ internal/shared/user_enums.go    — nếu chỉ user dùng thì để trong user/model.go
-❌ internal/shared/utils.go         — "utils" là dump folder, không được dùng
-❌ internal/common/                  — tương tự, không dùng tên generic
+❌ internal/shared/user_enums.go    — if only user needs it, keep it in user/model.go
+❌ internal/shared/utils.go         — "utils" is a dump folder, not allowed
+❌ internal/common/                  — same problem, don't use generic names
 ```
 
 ---
 
-### 7. Thêm pkg utility
+### 7. Adding pkg Utilities
 
-`pkg/` chỉ dành cho code **reusable giữa nhiều service**.
+`pkg/` is reserved for code **reusable across multiple services**.
 
 ```
 pkg/
 ├── response/
-│   └── response.go     # JSON format chuẩn {success, data, error, meta}
+│   └── response.go     # standard JSON format {success, data, error, meta}
 ├── apperror/
-│   └── apperror.go     # custom error type với HTTP status code
+│   └── apperror.go     # custom error type with HTTP status code
 ├── logger/
 │   └── logger.go       # zap/slog wrapper
 ├── paginate/
@@ -420,19 +420,19 @@ pkg/
     └── health.go       # /health + /ready handlers
 ```
 
-Mỗi package trong `pkg/` là 1 folder riêng với 1 file chính cùng tên. Nếu lớn hơn thì tách file nhưng giữ cùng package name.
+Each package under `pkg/` is its own folder with one primary file sharing the same name. If it grows larger, split into multiple files but keep the same package name.
 
-**Không được:**
+**Do not:**
 ```
-❌ pkg/utils/           — không dùng tên generic
-❌ pkg/helpers/         — tương tự
-❌ pkg/user/            — domain logic không vào pkg/
-❌ pkg/jwt/jwt.go rồi import internal/ — pkg không được import internal/
+❌ pkg/utils/           — no generic names
+❌ pkg/helpers/         — same
+❌ pkg/user/            — domain logic doesn't go in pkg/
+❌ pkg/jwt/jwt.go then import internal/ — pkg must never import internal/
 ```
 
 ---
 
-### 8. Thêm database migration
+### 8. Adding Database Migrations
 
 ```
 migrations/
@@ -442,66 +442,66 @@ migrations/
     └── 003_add_index_orders_user_id.sql
 ```
 
-**Quy tắc đặt tên:**
-- Prefix số tăng dần: `001`, `002`, `003`...
-- Tên mô tả rõ action: `create_<table>`, `add_<column>_<table>`, `add_index_<table>_<column>`
-- Không đổi tên file sau khi đã commit — migration tool dựa vào tên file để track version
+**Naming rules:**
+- Incrementing numeric prefix: `001`, `002`, `003`...
+- Descriptive action names: `create_<table>`, `add_<column>_<table>`, `add_index_<table>_<column>`
+- Never rename a file after it's been committed — migration tools track versions by filename
 
 ---
 
-### 9. Thêm tests
+### 9. Adding Tests
 
-**Unit test** — đặt cùng file source:
+**Unit tests** — placed alongside the source file:
 ```
 internal/user/
 ├── service_impl.go
-└── service_impl_test.go    # test file cùng package
+└── service_impl_test.go    # test file in the same package
 ```
 
-**Integration test** — cần infra thật (DB, Redis):
+**Integration tests** — require real infrastructure (DB, Redis):
 ```
 test/
 └── integration/
-    ├── user_test.go        # dùng testcontainers-go spin up DB thật
+    ├── user_test.go        # uses testcontainers-go to spin up a real DB
     └── order_test.go
 ```
 
-**E2E test** — test toàn bộ HTTP flow:
+**E2E tests** — test the full HTTP flow:
 ```
 test/
 └── e2e/
-    └── auth_test.go        # gửi HTTP request thật, check response
+    └── auth_test.go        # sends real HTTP requests, checks responses
 ```
 
-**Mock** — generate bằng mockery:
+**Mocks** — generated with mockery:
 ```
 test/
 └── mock/
-    ├── user_service.go     # auto-generated mock của UserService interface
-    └── user_repository.go  # auto-generated mock của UserRepository interface
+    ├── user_service.go     # auto-generated mock of the UserService interface
+    └── user_repository.go  # auto-generated mock of the UserRepository interface
 ```
 
 ---
 
-### 10. Thêm binary mới
+### 10. Adding a New Binary
 
-Khi cần thêm worker, CLI, hoặc service chạy riêng:
+When you need a worker, CLI, or a separately running service:
 
 ```
 cmd/
 ├── api/
-│   └── main.go         # đã có — HTTP API server
+│   └── main.go         # already here — HTTP API server
 ├── worker/
-│   └── main.go         # thêm khi cần background job processor
+│   └── main.go         # add when you need a background job processor
 └── migrate/
-    └── main.go         # thêm khi cần CLI chạy migration
+    └── main.go         # add when you need a migration CLI
 ```
 
-Mỗi binary trong `cmd/` chỉ làm 1 việc: load config → gọi `app.New()` → run. Không có business logic trong `main.go`.
+Each binary under `cmd/` does exactly one thing: load config → call `app.New()` → run. No business logic in `main.go`.
 
 ---
 
-### 11. Thêm proto definitions
+### 11. Adding Proto Definitions
 
 ```
 api/
@@ -512,7 +512,7 @@ api/
         └── order.proto
 ```
 
-Generated Go code từ proto **không commit** vào repo — generate lại trong CI bằng `make proto`. Nếu muốn commit thì tạo folder riêng:
+Generated Go code from proto files is **not committed** to the repo — regenerate in CI with `make proto`. If you prefer to commit it, put it in a dedicated folder:
 
 ```
 internal/transport/grpc/pb/
@@ -524,12 +524,12 @@ internal/transport/grpc/pb/
 
 ---
 
-### 12. Thêm config mới
+### 12. Adding New Config
 
-Không bao giờ dùng `os.Getenv` trực tiếp trong code — luôn thêm vào `internal/config/config.go`:
+Never call `os.Getenv` directly in code — always add it to `internal/config/config.go`:
 
 ```go
-// Thêm struct
+// Add struct
 type DatabaseConfig struct {
     Host     string
     Port     int
@@ -538,13 +538,13 @@ type DatabaseConfig struct {
     Password string
 }
 
-// Thêm vào Config
+// Add to Config
 type Config struct {
     App      AppConfig
-    Database DatabaseConfig   // thêm vào đây
+    Database DatabaseConfig   // add here
 }
 
-// Thêm vào Load()
+// Add to Load()
 Database: DatabaseConfig{
     Host: getEnv("DB_HOST", "localhost"),
     Port: getEnvInt("DB_PORT", 5432),
@@ -552,80 +552,80 @@ Database: DatabaseConfig{
 }
 ```
 
-Luôn thêm var mới vào `.env.example` cùng lúc với code.
+Always update `.env.example` at the same time as the code.
 
 ---
 
-### Tổng hợp: file mới đặt ở đâu
+### Quick Reference: Where Does a New File Go?
 
-| Loại | Đặt ở |
+| Type | Location |
 |---|---|
-| Feature nghiệp vụ mới | `internal/<domain>/` |
+| New business feature | `internal/<domain>/` |
 | HTTP handler | `internal/<domain>/handler.go` |
 | Business logic | `internal/<domain>/service_impl.go` |
-| DB query | `internal/<domain>/postgres/repository.go` |
+| DB queries | `internal/<domain>/postgres/repository.go` |
 | HTTP middleware | `internal/transport/http/middleware/<name>.go` |
 | gRPC interceptor | `internal/transport/grpc/interceptor/<name>.go` |
 | WebSocket | `internal/transport/ws/` |
 | MQ consumer | `internal/transport/consumer/<name>_handler.go` |
-| Gọi service khác (sync) | `internal/external/client/<service>.go` |
-| Publish message (async) | `internal/external/messaging/` |
-| Enums/types dùng chung | `internal/shared/enums.go` hoặc `types.go` |
-| Sentinel errors dùng chung | `internal/shared/errors.go` |
-| Utility reusable | `pkg/<name>/<name>.go` |
+| Sync call to another service | `internal/external/client/<service>.go` |
+| Async message publish | `internal/external/messaging/` |
+| Shared enums/types | `internal/shared/enums.go` or `types.go` |
+| Shared sentinel errors | `internal/shared/errors.go` |
+| Reusable utility | `pkg/<name>/<name>.go` |
 | SQL migration | `migrations/postgres/NNN_<action>_<table>.sql` |
-| Unit test | Cùng folder với file test (`_test.go`) |
+| Unit test | Same folder as the source file (`_test.go`) |
 | Integration test | `test/integration/` |
 | E2E test | `test/e2e/` |
 | Proto definition | `api/proto/<domain>/<domain>.proto` |
-| Binary mới | `cmd/<name>/main.go` |
-| Config mới | `internal/config/config.go` + `.env.example` |
+| New binary | `cmd/<name>/main.go` |
+| New config | `internal/config/config.go` + `.env.example` |
 
 ---
 
-## 📦 `pkg/` — Khi nào dùng
+## 📦 `pkg/` — When to Use It
 
-`pkg/` cố tình để rỗng. Chỉ thêm khi đáp ứng **cả 2** tiêu chí:
+`pkg/` is intentionally empty. Only add to it when code meets **both** criteria:
 
-1. Code **không** đặc thù cho business logic của service này.
-2. Service khác có thể copy sang dùng mà không cần sửa.
+1. It is **not** specific to this service's business logic.
+2. Another service could copy it and use it without modification.
 
-**Phù hợp:**
+**Good fits:**
 
 ```
 pkg/
-├── response/      # HTTP response format chuẩn
-├── apperror/      # Custom error types với HTTP status mapping
-├── logger/        # Structured logger wrapper
+├── response/      # standard HTTP response format
+├── apperror/      # custom error types with HTTP status mapping
+├── logger/        # structured logger wrapper
 ├── telemetry/     # OpenTelemetry tracing + Prometheus metrics
 ├── health/        # /health + /ready endpoints
-├── paginate/      # Offset và cursor-based pagination
-└── testutil/      # Test helpers
+├── paginate/      # offset and cursor-based pagination
+└── testutil/      # test helpers
 ```
 
-**Không nên:**
+**Not a fit:**
 
 ```
-❌ pkg/jwt/        — không phải service nào cũng dùng JWT
-❌ pkg/auth/       — auth logic là business logic
-❌ pkg/database/   — config DB là quyết định của từng service
-❌ pkg/utils/      — tên generic, không được phép
+❌ pkg/jwt/        — not every service authenticates with JWT
+❌ pkg/auth/       — auth logic is business logic
+❌ pkg/database/   — DB configuration is a per-service decision
+❌ pkg/utils/      — generic name, not allowed
 ```
 
 ---
 
-## 🚀 Bắt đầu
+## 🚀 Getting Started
 
-### Yêu cầu
+### Prerequisites
 
-Cài đặt các công cụ sau trước khi bắt đầu:
+Install the following tools before beginning:
 
-#### 1. Cài Go 1.22+
+#### 1. Install Go 1.22+
 
 **Windows:**
-- Tải installer tại [https://golang.org/dl/](https://golang.org/dl/) → chọn file `.msi`
-- Chạy installer, mặc định cài vào `C:\Program Files\Go`
-- Mở terminal mới, kiểm tra:
+- Download the installer from [https://golang.org/dl/](https://golang.org/dl/) → pick the `.msi` file
+- Run it; installs to `C:\Program Files\Go` by default
+- Open a new terminal and verify:
 ```powershell
 go version
 # → go version go1.22.x windows/amd64
@@ -639,23 +639,23 @@ brew install go
 # Ubuntu/Debian
 sudo apt install golang-go
 
-# Kiểm tra
+# Verify
 go version
 ```
 
-#### 2. Cài Make
+#### 2. Install Make
 
-**Windows** — Make không có sẵn, cài qua Chocolatey:
+**Windows** — Make isn't bundled; install via Chocolatey:
 ```powershell
-# Cài Chocolatey trước (chạy PowerShell với quyền Admin)
+# Install Chocolatey first (run PowerShell as Admin)
 Set-ExecutionPolicy Bypass -Scope Process -Force
 [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
 iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-# Sau đó cài Make
+# Then install Make
 choco install make
 
-# Kiểm tra
+# Verify
 make --version
 ```
 
@@ -667,42 +667,41 @@ brew install make
 # Ubuntu/Debian
 sudo apt install make
 
-# Kiểm tra
+# Verify
 make --version
 ```
 
-#### 3. Cài Air (hot-reload)
+#### 3. Install Air (hot-reload)
 
 ```bash
 go install github.com/air-verse/air@latest
 ```
 
-Kiểm tra:
+Verify:
 ```bash
 air -v
 ```
 
-> **Windows:** Sau lần đầu chạy `make dev`, Windows Firewall sẽ hỏi cấp quyền cho `tmp/api.exe` — bấm **Allow** một lần duy nhất, không hỏi lại.
+> **Windows:** The first time you run `make dev`, Windows Firewall will ask for permission to allow `tmp/api.exe` — click **Allow** once and it won't ask again.
 
-#### 4. Docker (tùy chọn — chỉ cần khi dùng `make docker/*`)
+#### 4. Docker (optional — only needed for `make docker/*`)
 
-Tải tại [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
+Download at [https://docs.docker.com/get-docker/](https://docs.docker.com/get-docker/)
 
 ---
 
-### Setup Linux/Mac
+### Setup — Linux/Mac
 
 ```bash
 # 1. Clone
 git clone https://github.com/DANG-PH/golang-base.git my-service
 cd my-service
 
-# 2. Đổi import path trong code (.go)
-# (dùng full module path, không dùng "my-service")
+# 2. Replace import paths in .go files
 find . -type f -name "*.go" -exec sed -i.bak 's|github.com/DANG-PH/golang-base|github.com/DANG-PH/my-service|g' {} +
 find . -type f -name "*.bak" -delete
 
-# 3. Đổi module chuẩn bằng Go toolchain (KHÔNG edit tay go.mod)
+# 3. Update the module path correctly via Go toolchain (do NOT edit go.mod manually)
 go mod edit -module github.com/DANG-PH/my-service
 go mod tidy
 
@@ -711,28 +710,28 @@ rm -rf .git && git init
 git add .
 git commit -m "chore: initial from golang-base"
 
-# 5. Cấu hình env
+# 5. Set up env
 cp .env.example .env
 
-# 6. Chạy với hot-reload
+# 6. Run with hot-reload
 make dev
 
-# 7. Test
+# 7. Verify
 curl http://localhost:8080/health
 # → {"status":"ok"}
 ```
 
-### Setup Windows (PowerShell)
+### Setup — Windows (PowerShell)
 
 ```powershell
 # 1. Clone
 git clone https://github.com/DANG-PH/golang-base.git my-service
 cd my-service
 
-# 2. Replace import path trong code (.go)
+# 2. Replace import paths in .go files
 Get-ChildItem -Recurse -Filter "*.go" | % { [System.IO.File]::WriteAllText($_.FullName, ([System.IO.File]::ReadAllText($_.FullName) -replace 'github.com/DANG-PH/golang-base','github.com/DANG-PH/my-service'), (New-Object System.Text.UTF8Encoding($false))) }
 
-# 3. Update module đúng chuẩn (tránh BOM + lỗi syntax)
+# 3. Update module path correctly (avoids BOM + syntax errors)
 go mod edit -module github.com/DANG-PH/my-service
 go mod tidy
 
@@ -741,96 +740,96 @@ Remove-Item -Recurse -Force .git; git init
 git add .
 git commit -m "chore: initial from golang-base"
 
-# 5. Cấu hình env
+# 5. Set up env
 Copy-Item .env.example .env
 
-# 6. Chạy với hot-reload
+# 6. Run with hot-reload
 make dev
 
-# 7. Test
+# 7. Verify
 curl http://localhost:8080/health
 # → {"status":"ok"}
 ```
 
 ---
 
-### Cách `make dev` hoạt động
+### How `make dev` Works
 
 ```
-Bạn save file .go
+You save a .go file
        ↓
-Air detect thay đổi (file watcher)
+Air detects the change (file watcher)
        ↓
-Auto rebuild → tmp/api.exe
+Auto-rebuild → tmp/api.exe
        ↓
-Kill process cũ → Start process mới
+Kill old process → Start new process
        ↓
-Server đã chạy code mới — không cần làm gì
+Server is running your new code — nothing else needed
 ```
 
-Terminal sẽ hiện:
+The terminal shows:
 ```
 building...
 running...
 ```
 
-Không cần `Ctrl+C` rồi chạy lại tay. Chỉ việc code, save, test.
+No `Ctrl+C`, no manual restart. Just code, save, test.
 
 ---
 
-## ⚙️ Cấu hình
+## ⚙️ Configuration
 
 ```env
 APP_ENV=development   # development | staging | production
 APP_PORT=8080
-GRPC_PORT=9090        # thêm khi dùng gRPC
+GRPC_PORT=9090        # add when using gRPC
 ```
 
-Thêm vars mới vào `.env.example` khi service lớn dần — không bao giờ commit `.env`.
+Add new vars to `.env.example` as the service grows — never commit `.env`.
 
 ---
 
 ## 🛠️ Makefile Commands
 
-| Command | Mô tả |
+| Command | Description |
 |---|---|
-| `make dev` | **Chạy với hot-reload (Air) ← dùng hàng ngày** |
-| `make run` | Chạy application (fallback nếu không có Air) |
-| `make build` | Compile ra `./bin/api` |
-| `make test` | Chạy tất cả tests với race detector |
-| `make test/cover` | Hiển thị coverage report |
-| `make lint` | Chạy `golangci-lint` |
-| `make fmt` | Chạy `go fmt` |
-| `make vet` | Chạy `go vet` |
-| `make tidy` | Chạy `go mod tidy` |
-| `make clean` | Xóa build artifacts |
+| `make dev` | **Run with hot-reload (Air) ← use this daily** |
+| `make run` | Run the application (fallback without Air) |
+| `make build` | Compile to `./bin/api` |
+| `make test` | Run all tests with race detector |
+| `make test/cover` | Show coverage report |
+| `make lint` | Run `golangci-lint` |
+| `make fmt` | Run `go fmt` |
+| `make vet` | Run `go vet` |
+| `make tidy` | Run `go mod tidy` |
+| `make clean` | Remove build artifacts |
 | `make docker/build` | Build Docker image |
-| `make docker/run` | Chạy Docker container với `.env` |
+| `make docker/run` | Run Docker container with `.env` |
 | `make proto` | Compile `.proto` files → Go code |
 
 ---
 
 ## 🔄 CI Pipeline
 
-GitHub Actions chạy trên mọi push vào `main` và mọi pull request:
+GitHub Actions runs on every push to `main` and every pull request:
 
-- **lint** — `golangci-lint` với `.golangci.yml`
-- **test** — `go test -race ./...` với coverage report
-
----
-
-## 🤝 Đóng góp
-
-1. Fork repository
-2. Tạo branch (`git checkout -b feature/your-feature`)
-3. Commit theo [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`)
-4. Push và mở Pull Request
-
-PR thêm code framework-specific hoặc business-specific sẽ không được merge — repo này giữ generic.
+- **lint** — `golangci-lint` with `.golangci.yml`
+- **test** — `go test -race ./...` with coverage report
 
 ---
 
-## 👤 Tác giả
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a branch (`git checkout -b feature/your-feature`)
+3. Commit following [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`)
+4. Push and open a Pull Request
+
+PRs adding framework-specific or business-specific code won't be merged — this repo stays generic.
+
+---
+
+## 👤 Author
 
 <p align="left">
   <a href="https://github.com/DANG-PH">
@@ -842,12 +841,12 @@ PR thêm code framework-specific hoặc business-specific sẽ không được m
   Backend Engineer · Go · NestJS · Distributed Systems
 </p>
 
-Nếu cái này tiết kiệm cho bạn 30 phút setup — để lại một ⭐. Nó giúp người khác tìm thấy repo này khi search Go starter.
+If this saved you 30 minutes of setup — leave a ⭐. It helps others find the repo when searching for Go starters.
 
 ---
 
 ## 📄 License
 
-MIT — xem [LICENSE](LICENSE) để biết chi tiết.
+MIT — see [LICENSE](LICENSE) for details.
 
 <p align="center"><sub>Built with Go · Kept simple on purpose</sub></p>
